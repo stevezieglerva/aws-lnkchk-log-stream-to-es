@@ -23,6 +23,7 @@ def lambda_handler(event, context):
     log.critical("event_count", record_count=len(log_events), log_events=log_events)
     for log_event in log_events:
         message = log_event["message"]
+        log.critical("processing_next_event", event=message)
         if "{" in message:
             json_string = re.sub("^[^{]+", "", message)
             json_object = json.loads(json_string)
