@@ -12,8 +12,7 @@ def lambda_handler(event, context):
     log = setup_logging()
     log.critical("starting_log-stream-to-es")
 
-
-    es = ESLambdaLog("aws_test_log_sync")
+    es = ESLambdaLog("aws_test_log_sync") 
 
     cw_data = event["awslogs"]["data"]
     compressed_payload = base64.b64decode(cw_data)
@@ -21,9 +20,8 @@ def lambda_handler(event, context):
     payload = json.loads(uncompressed_payload)
 
     log_events = payload["logEvents"]
-    log.critical("event_count", record_count=len(log_events))
+    log.critical("event_count", record_count=len(log_events), log_events=log_events)
     for log_event in log_events:
-        json_event_only = ""
         message = log_event["message"]
         if "{" in message:
             json_string = re.sub("^[^{]+", "", message)
