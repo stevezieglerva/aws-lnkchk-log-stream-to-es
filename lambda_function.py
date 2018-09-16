@@ -10,6 +10,7 @@ import sys
 
 def lambda_handler(event, context):
     log = setup_logging()
+    log = log.bind(lambda_name="aws-lnkchk-stream-to-es")
     log.critical("starting_log-stream-to-es")
 
     es = ESLambdaLog("aws_test_log_sync") 
@@ -21,17 +22,24 @@ def lambda_handler(event, context):
 
     log_events = payload["logEvents"]
     log.critical("event_count", record_count=len(log_events), log_events=log_events)
+    print("*** log_events:")
+    count = 0
     for log_event in log_events:
         message = log_event["message"]
-        log.critical("processing_next_event", input_events=message)
         if "{" in message:
             json_string = re.sub("^[^{]+", "", message)
             json_object = json.loads(json_string)
-            print(json.dumps(json_object, indent=True))
             # Send the log event into Elasticsearch
             es.log_event(json_object)
 
     log.critical("finished_log-stream-to-es")
+
+
+def extract_json_from_message_line(message):
+    print("||| Input: " + message)
+    json_string = re.sub("^[^{]+", "", message)
+    print("||| Output: " + json_string)
+    return json_string
 
 
 def setup_logging():

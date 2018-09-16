@@ -10,3 +10,4 @@ cd ..\..\
 REM Upload the new code
 call aws lambda update-function-code --function-name %function_name% --zip-file fileb://lambda_function.zip
 
+echo %time%
