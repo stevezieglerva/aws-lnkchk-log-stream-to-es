@@ -28,13 +28,17 @@ def lambda_handler(event, context):
     count = 0
     for log_event in log_events:
         message = log_event["message"]
-        if "{" in message:
+        if "{" in message and "lambda_name" in message:
             count = count + 1
             print(str(count) + " - " + message)
             json_string = re.sub("^[^{]+", "", message)
-            json_object = json.loads(json_string)
-            # Send the log event into Elasticsearch
-            es.log_event(json_object)
+            try:
+                json_object = json.loads(json_string)
+                # Send the log event into Elasticsearch
+                es.log_event(json_object)
+            except Excetion as e:
+                print(e)
+                print("Continuing to next message")
 
     log.critical("finished_log-stream-to-es")
 
