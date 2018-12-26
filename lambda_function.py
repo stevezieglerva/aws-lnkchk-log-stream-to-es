@@ -3,6 +3,7 @@ import json
 import base64
 import re
 from ESLambdaLog import *
+from Event import *
 import logging
 import structlog
 import sys
@@ -12,8 +13,10 @@ import datetime
 def lambda_handler(event, context):
     log = setup_logging()
     log = log.bind(lambda_name="aws-lnkchk-stream-to-es")
+    if context is not None:
+        log = log.bind(aws_request_id=context.aws_request_id)
+    log.critical("started", input_events=json.dumps(event, indent=3))
     log.critical("starting_log-stream-to-es")
-
 
     cw_data = event["awslogs"]["data"]
     compressed_payload = base64.b64decode(cw_data)
@@ -21,6 +24,14 @@ def lambda_handler(event, context):
     payload = json.loads(uncompressed_payload)
 
     log_events = payload["logEvents"]
+    count = 0
+    count = process_cloud_watch_messages(log_events)
+    log.critical("finished_log-stream-to-es")
+    return {"processed_structlog_messages" : count}
+
+
+def process_cloud_watch_messages(log_events):
+    log = structlog.get_logger()
     log.critical("event_count", record_count=len(log_events), log_events=log_events)
     print("*** log_events:")
     count = 0
@@ -36,12 +47,14 @@ def lambda_handler(event, context):
                 index_name = ""
                 if "lambda_name" in json_object:
                     index_name = json_object["lambda_name"]
-                es = ESLambdaLog(index_name) 
-                es.log_event(json_object)
+                response = Event("elastic_search_queue", json_object)
+                print("Adding to event stream instead of sending to ES to test performance and batching")
+                ##es = ESLambdaLog(index_name) 
+                ##es.log_event(json_object)
             except Exception as e:
                 print(e)
                 print("Continuing to next message")
-    log.critical("finished_log-stream-to-es")
+    return count
 
 
 def extract_json_from_message_line(message):
