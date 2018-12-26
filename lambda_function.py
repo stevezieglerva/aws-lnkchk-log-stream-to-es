@@ -6,6 +6,7 @@ from ESLambdaLog import *
 import logging
 import structlog
 import sys
+import datetime
 
 
 def lambda_handler(event, context):
@@ -13,7 +14,8 @@ def lambda_handler(event, context):
     log = log.bind(lambda_name="aws-lnkchk-stream-to-es")
     log.critical("starting_log-stream-to-es")
 
-    es = ESLambdaLog("aws_test_log_sync") 
+    index_day_text = datetime.datetime.now().strftime("%Y.%m.%d")
+    es = ESLambdaLog("aws_test_log_sync." + index_day_text) 
 
     cw_data = event["awslogs"]["data"]
     compressed_payload = base64.b64decode(cw_data)
@@ -27,6 +29,8 @@ def lambda_handler(event, context):
     for log_event in log_events:
         message = log_event["message"]
         if "{" in message:
+            count = count + 1
+            print(str(count) + " - " + message)
             json_string = re.sub("^[^{]+", "", message)
             json_object = json.loads(json_string)
             # Send the log event into Elasticsearch
