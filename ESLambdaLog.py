@@ -7,8 +7,10 @@ from elasticsearch import Elasticsearch, RequestsHttpConnection
 from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 
 class ESLambdaLog:
-	def __init__(self, index_name = "aws_lambda_start"):
-		self.index_name = index_name
+	def __init__(self, index_name = ""):
+		index_day_text = datetime.now().strftime("%Y.%m.%d")
+		self.index_name = "aws_lambda_log_" + index_name + "." + index_day_text
+
 		es_host = 'search-ziegler-es-bnlsbjliclp6ebc67fu3mfr74u.us-east-1.es.amazonaws.com'
 		auth = BotoAWSRequestsAuth(aws_host=es_host,
 											aws_region='us-east-1',
@@ -40,6 +42,7 @@ class ESLambdaLog:
 	def log_event(self, event):
 		event["@timestamp"] = self.get_timestamp()
 		self.es.index(index=self.index_name, doc_type = "doc", body = event)
+		print("Added to " + self.index_name)
 
 		#2018-02-01T00:00:00
 

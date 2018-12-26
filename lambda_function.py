@@ -14,8 +14,6 @@ def lambda_handler(event, context):
     log = log.bind(lambda_name="aws-lnkchk-stream-to-es")
     log.critical("starting_log-stream-to-es")
 
-    index_day_text = datetime.datetime.now().strftime("%Y.%m.%d")
-    es = ESLambdaLog("aws_test_log_sync." + index_day_text) 
 
     cw_data = event["awslogs"]["data"]
     compressed_payload = base64.b64decode(cw_data)
@@ -35,11 +33,14 @@ def lambda_handler(event, context):
             try:
                 json_object = json.loads(json_string)
                 # Send the log event into Elasticsearch
+                index_name = ""
+                if "lambda_name" in json_object:
+                    index_name = json_object["lambda_name"]
+                es = ESLambdaLog(index_name) 
                 es.log_event(json_object)
-            except Excetion as e:
+            except Exception as e:
                 print(e)
                 print("Continuing to next message")
-
     log.critical("finished_log-stream-to-es")
 
 
