@@ -48,10 +48,12 @@ def process_cloud_watch_messages(log_events):
                 index_name = ""
                 if "lambda_name" in json_object:
                     index_name = json_object["lambda_name"]
-                response = Event("elasticsearch-queue", json_object)
-                print("Also adding to event stream also")
                 es = ESLambdaLog(index_name) 
                 es.log_event(json_object)
+
+                print("Also adding to event stream also")
+                es_queue_event = {"_index" : "aws_code_index", "_id" : "", "data" : json_object}
+                response = Event("elasticsearch-queue", es_queue_event)
                 count = count + 1
             except Exception as e:
                 print("Exception")
