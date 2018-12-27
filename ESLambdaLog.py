@@ -45,7 +45,6 @@ class ESLambdaLog:
 		self.es.index(index=self.index_name, doc_type = "doc", body = event)
 		print("Added to " + self.index_name)
 
-		#2018-02-01T00:00:00
 
 	def list_indices(self):
 		results = self.es.indices.get(index = "*")

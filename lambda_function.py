@@ -40,13 +40,10 @@ def process_cloud_watch_messages(log_events):
         if "{" in message and "lambda_name" in message:
             print(str(count) + " - " + message)
             timestamp = extract_timestamp_from_message_line(message)
-            print("timestamp=" + timestamp)
             json_string = re.sub("^[^{]+", "", message)
             try:
                 json_object = json.loads(json_string)
                 json_object["@timestamp"] = timestamp
-                print("Just added @timestamp to object")
-                print(json.dumps(json_object))
                 # Send the log event into Elasticsearch
                 index_name = ""
                 if "lambda_name" in json_object:
