@@ -40,7 +40,8 @@ class ESLambdaLog:
 		return datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
 
 	def log_event(self, event):
-		event["@timestamp"] = self.get_timestamp()
+		if "@timestamp" not in event:
+			event["@timestamp"] = self.get_timestamp()
 		self.es.index(index=self.index_name, doc_type = "doc", body = event)
 		print("Added to " + self.index_name)
 

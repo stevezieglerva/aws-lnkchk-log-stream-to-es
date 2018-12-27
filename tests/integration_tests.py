@@ -36,7 +36,6 @@ class TestMethods(unittest.TestCase):
 
 		cloudwatch_events = [{"message" : "[CRITICAL] 2018-12-26T22:00:17.246Z a0a6b576-0959-11e9-a	{\"lambda_name\" : \"super_lambda\"}"}]
 
-
 		# Act
 		result = process_cloud_watch_messages(cloudwatch_events)
 
