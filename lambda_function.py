@@ -45,6 +45,8 @@ def process_cloud_watch_messages(log_events):
             try:
                 json_object = json.loads(json_string)
                 json_object["@timestamp"] = timestamp
+                print("Just added @timestamp to object")
+                print(json.dumps(json_object))
                 # Send the log event into Elasticsearch
                 index_name = ""
                 if "lambda_name" in json_object:
@@ -62,10 +64,13 @@ def process_cloud_watch_messages(log_events):
 
 
 def extract_timestamp_from_message_line(message):
-    chars_until_first_close_bracket_and_space = "^[^]]+\] "
+    chars_until_first_close_bracket_and_space = "^[^]]+\]( |\t)"
     timestamp = re.sub(chars_until_first_close_bracket_and_space, "", message) 
-    chars_from_period_on = "\..*$"
-    timestamp = re.sub(chars_from_period_on, "", timestamp) 
+    chars_from_space_on = "( |\t).*$"
+    timestamp = re.sub(chars_from_space_on, "", timestamp) 
+    final_chars = "Z.*$"
+    timestamp = re.sub(final_chars, "", timestamp) 
+    timestamp = re.sub("\n", "", timestamp) 
     return timestamp
 
 
