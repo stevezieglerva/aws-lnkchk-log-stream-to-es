@@ -25,7 +25,7 @@ def lambda_handler(event, context):
 
     log_events = payload["logEvents"]
     count = 0
-    count = process_cloud_watch_messages(log_events)
+    count = process_cloud_watch_messages(log_events) 
     log.critical("finished_log-stream-to-es")
     return {"processed_structlog_messages" : count}
 

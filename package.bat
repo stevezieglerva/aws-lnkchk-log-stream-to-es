@@ -33,4 +33,4 @@ echo *** Commit failed, so aborted packaging
 goto end
 
 :end
-echo %time%
+echo %time% deployed 
