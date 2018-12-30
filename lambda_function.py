@@ -39,12 +39,12 @@ def process_cloud_watch_messages(log_events):
         message = log_event["message"]
         if "{" in message and "lambda_name" in message:
             print(str(count) + " - " + message)
-            timestamp = extract_timestamp_from_message_line(message)
+            #timestamp = extract_timestamp_from_message_line(message)
             json_string = re.sub("^[^{]+", "", message)
             try:
                 print("*** here is the original json_string: " + json_string)
                 json_object = json.loads(json_string)
-                json_object["@timestamp"] = timestamp
+            #    json_object["@timestamp"] = timestamp
 
                 index_name = ""
                 if "lambda_name" in json_object:
