@@ -42,18 +42,18 @@ def process_cloud_watch_messages(log_events):
             timestamp = extract_timestamp_from_message_line(message)
             json_string = re.sub("^[^{]+", "", message)
             try:
+                print("*** here is the original json_string: " + json_string)
                 json_object = json.loads(json_string)
                 json_object["@timestamp"] = timestamp
                 # Send the log event into Elasticsearch
                 index_name = ""
                 if "lambda_name" in json_object:
                     index_name = json_object["lambda_name"]
-                es = ESLambdaLog(index_name) 
-                es.log_event(json_object)
+                #es = ESLambdaLog(index_name) 
+                #es.log_event(json_object)
 
-                print("Also adding to event stream also")
-                es_queue_event = {"_index" : "aws_code_index", "_id" : "", "data" : json_object}
-                response = Event("elasticsearch-queue", es_queue_event)
+                print("Adding to event stream also")
+                create_es_event(json_object)
                 count = count + 1
             except Exception as e:
                 print("Exception")

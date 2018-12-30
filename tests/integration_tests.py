@@ -1,6 +1,7 @@
 import unittest
 from lambda_function import *
 import time
+from Event import *
 
 
 cloudwatch_event = {
@@ -24,16 +25,6 @@ class TestMethods(unittest.TestCase):
 
 	def test_process_cloud_watch_messages__one_structlog_events__zero_results_processed(self):
 		# Arrange
-##		cloudwatch_events = [{"message" : """[CRITICAL] 2018-12-26T22:00:17.246Z a0a6b576-0959-11e9-abd3-6b4ebbe44d07
-##{
-##    \"lambda_name\": \"aws-s3-to-es\",
-##    \"input_events\": \"{\n   \"Records\": [\n      {\n         \"eventVersion\": \"2.1\",\n         \"eventSource\": \"aws:s3\",\n         \"awsRegion\": \"us-east-1\",\n         \"eventTime\": \"2018-12-26T22:00:16.279Z\",\n         \"eventName\": \"ObjectCreated:Put\",\n         \"userIdentity\": {\n            \"principalId\": \"AWS:AIDAJ6J45YO4ULNBAXD3C\"\n         },\n         \"requestParameters\": {\n            \"sourceIPAddress\": \"76.182.13.210\"\n         },\n         \"responseElements\": {\n            \"x-amz-request-id\": \"FA354C6CC120BB14\",\n            \"x-amz-id-2\": \"1H36W81i8k11qr3ezo1wD/peu9Ru6VbfFdnECrf/qBh6WOoQzo5ps2Jprk2mYXBPKq+KT2mhJ70=\"\n         },\n         \"s3\": {\n            \"s3SchemaVersion\": \"1.0\",\n            \"configurationId\": \"44d4eb8a-5049-42fa-b5a8-a4f090526686\",\n            \"bucket\": {\n               \"name\": \"aws-s3-to-es\",\n               \"ownerIdentity\": {\n                  \"principalId\": \"A2RS4F4ZBATR58\"\n               },\n               \"arn\": \"arn:aws:s3:::aws-s3-to-es\"\n            },\n            \"object\": {\n               \"key\": \"general_events/general_2018-12-26-170001.txt\",\n               \"size\": 85,\n               \"eTag\": \"6dd748801590691eed6ece30e74cb592\",\n               \"sequencer\": \"005C23F9F02CD88793\"\n            }\n         }\n      }\n   ]\n}",
-##    \"event\": \"started\",
-##    \"logger\": \"lambda_function\",
-##    \"level\": \"critical\",
-##    \"timestamp\": \"2018-12-26T22:00:17.246137Z\"
-##}"""}]
-
 		cloudwatch_events = [{"message" : "[CRITICAL] 2018-12-26T22:00:17.246Z a0a6b576-0959-11e9-a	{\"lambda_name\" : \"super_lambda\"}"}]
 
 		# Act
@@ -42,6 +33,50 @@ class TestMethods(unittest.TestCase):
 		# Assert
 		self.assertEqual(result, 1)
 
+	def test_create_es_event__simple_event_data__s3_file_created(self):
+		# Arrange
+		input = {
+			"hello" : "world"
+			}
+
+		# Act
+		s3_url = create_es_event(input)
+		print("*** s3_url: " + s3_url)
+
+		# Assert
+		s3_array = [1]
+		s3_array[0] = s3_url
+		s3 = boto3.resource("s3")
+		written_text = get_file_text_from_s3_urls(s3_array, s3)
+		event_json = json.loads(written_text[s3_url])
+		self.assertEqual(event_json["_index"], "aws_lambda_log_")
+		self.assertEqual(event_json["data"]["hello"], "world")
+		self.assertTrue("@timestamp" in event_json["data"])
+		self.assertTrue("@timestamp_local" in event_json["data"])
+
+
+	def test_create_es_event__simple_event_data__s3_file_created(self):
+		# Arrange
+		input = {
+			"hello" : "world",
+			"lambda_name" : "test-log-stream-to-es",
+			"@timestamp" : "1776-07-04T09:17:07.00000"
+			}
+
+		# Act
+		s3_url = create_es_event(input)
+		print("*** s3_url: " + s3_url)
+
+		# Assert
+		s3_array = [1]
+		s3_array[0] = s3_url
+		s3 = boto3.resource("s3")
+		written_text = get_file_text_from_s3_urls(s3_array, s3)
+		event_json = json.loads(written_text[s3_url])
+		self.assertEqual(event_json["_index"], "aws_lambda_log_test-log-stream-to-es")
+		self.assertEqual(event_json["data"]["hello"], "world")
+		self.assertEqual(event_json["data"]["@timestamp"], "1776-07-04T09:17:07.00000")
+		self.assertTrue("@timestamp_local" in event_json["data"])
 
 
 if __name__ == '__main__':

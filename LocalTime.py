@@ -34,3 +34,10 @@ class LocalTime:
 		utc_epoch_date = self.get_utc_epoch_date()
 		expiration_epoch =  (expiration - utc_epoch_date).total_seconds()
 		return  int(expiration_epoch) 	
+
+	def get_utc_timestamp(self):
+		return self.utc.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+
+	def get_local_timestamp(self):
+		return self.local.strftime("%Y-%m-%dT%H:%M:%S.%f")
