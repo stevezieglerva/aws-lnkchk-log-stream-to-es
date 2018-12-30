@@ -68,6 +68,8 @@ def extract_timestamp_from_message_line(message):
     final_chars = "Z.*$"
     timestamp = re.sub(final_chars, "", timestamp) 
     timestamp = re.sub("\n", "", timestamp) 
+    if "2018" not in timestamp:
+        raise Exception("Extracting timestamp did not return a date")
     return timestamp
 
 
