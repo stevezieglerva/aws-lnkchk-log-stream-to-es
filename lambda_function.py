@@ -45,12 +45,10 @@ def process_cloud_watch_messages(log_events):
                 print("*** here is the original json_string: " + json_string)
                 json_object = json.loads(json_string)
                 json_object["@timestamp"] = timestamp
-                # Send the log event into Elasticsearch
+
                 index_name = ""
                 if "lambda_name" in json_object:
                     index_name = json_object["lambda_name"]
-                #es = ESLambdaLog(index_name) 
-                #es.log_event(json_object)
 
                 print("Adding to event stream also")
                 create_es_event(json_object)
