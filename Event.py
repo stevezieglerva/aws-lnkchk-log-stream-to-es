@@ -5,7 +5,7 @@ from S3TextFromLambdaEvent import *
 import uuid
 
 
-def create_es_event(data):
+def create_es_event(index = "", id = "", data):
 	local_time = LocalTime()
 	s3 = boto3.resource("s3")
 	#aws_lambda_log_aws-s3-queue-prep.2018.12.28
