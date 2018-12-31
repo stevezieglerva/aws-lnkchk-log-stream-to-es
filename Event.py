@@ -25,12 +25,14 @@ def create_es_event(data, index = "", id = "", ):
 
 	shard = "0"
 	shard_index = filename_id[0]
-	if shard_index in "0123456789":
+	if shard_index in "01234":
 		shard = "1"
+	if shard_index in "56789":
+		shard = "2"		
 	if shard_index in "abcdefghjklmn":
-		shard = "2"
+		shard = "3"
 	if shard_index in "opqrstuvwxyz":
-		shard = "3"	
+		shard = "4"	
 
 	if "@timestamp" not in data:
 		data["@timestamp"] = local_time.get_utc_timestamp()
