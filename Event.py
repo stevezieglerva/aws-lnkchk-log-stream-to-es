@@ -23,6 +23,15 @@ def create_es_event(data, index = "", id = "", ):
 	else:
 		filename_id = str(uuid.uuid4())	
 
+	shard = "0"
+	shard_index = filename_id[0]
+	if shard_index in "0123456789":
+		shard = "1"
+	if shard_index in "abcdefghjklmn":
+		shard = "2"
+	if shard_index in "opqrstuvwxyz":
+		shard = "3"	
+
 	if "@timestamp" not in data:
 		data["@timestamp"] = local_time.get_utc_timestamp()
 
@@ -32,7 +41,7 @@ def create_es_event(data, index = "", id = "", ):
 	es_queue_event = {"_index" : index, "_id" : id, "data" : data}
 	message_text_string =  json.dumps(es_queue_event)
 	print("*** message_text_string: " + message_text_string)
-	filename = "es-bulk-files-input/" + index + "_" + filename_id + ".json"
+	filename = "es-bulk-files-input/" + shard + "/" + index + "_" + filename_id + ".json"
 
 	response = create_s3_text_file("code-index", filename, message_text_string, s3)
 	s3_url = "https://s3.amazonaws.com/code-index/" + filename
