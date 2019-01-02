@@ -51,7 +51,7 @@ def create_es_event(data, index = "", id = "", ):
 	record = {
 			"Data": json.dumps(data) 
 		}
-	print("record=")
+	print("\n\n\n\n\nrecord=")
 	print(record)
 	response = firehose.put_record(
 		DeliveryStreamName="lambda-logs",
