@@ -34,73 +34,73 @@ class TestMethods(unittest.TestCase):
 		self.assertEqual(result, 1)
 
 
-	def test_create_es_event__simple_event_data__s3_file_created(self):
-		# Arrange
-		input = {
-			"hello" : "world"
-			}
-
-		# Act
-		s3_url = create_es_event(input)
-		print("*** s3_url: " + s3_url)
-
-		# Assert
-		s3_array = [1]
-		s3_array[0] = s3_url
-		s3 = boto3.resource("s3")
-		written_text = get_file_text_from_s3_urls(s3_array, s3)
-		event_json = json.loads(written_text[s3_url])
-		self.assertEqual(event_json["_index"], "aws_lambda_log_")
-		self.assertEqual(event_json["data"]["hello"], "world")
-		self.assertTrue("@timestamp" in event_json["data"])
-		self.assertTrue("@timestamp_local" in event_json["data"])
-
-	def test_create_es_event__event_data_with_timestamp__s3_file_created(self):
-		# Arrange
-		input = {
-			"hello" : "world",
-			"lambda_name" : "test-log-stream-to-es",
-			"@timestamp" : "1776-07-04T09:17:07.00000"
-			}
-
-		# Act
-		s3_url = create_es_event(input)
-		print("*** s3_url: " + s3_url)
-
-		# Assert
-		s3_array = [1]
-		s3_array[0] = s3_url
-		s3 = boto3.resource("s3")
-		written_text = get_file_text_from_s3_urls(s3_array, s3)
-		event_json = json.loads(written_text[s3_url])
-		self.assertEqual(event_json["_index"], "aws_lambda_log_test-log-stream-to-es")
-		self.assertEqual(event_json["data"]["hello"], "world")
-		self.assertEqual(event_json["data"]["@timestamp"], "1776-07-04T09:17:07.00000")
-		self.assertTrue("@timestamp_local" in event_json["data"])
-		self.assertGreaterEqual(len(event_json["_id"]), 30)
-
-	def test_create_es_event__event_data_with_index_id__s3_file_created(self):
-		# Arrange
-		input = {
-			"filename" : "simpleapp/hello_world.java",
-			"file_text" : "java++",
-			"@timestamp" : "1776-07-04T09:17:07.00000"
-			}
-
-		# Act
-		s3_url = create_es_event(data=input, index="code-index", id="simpleapp/hello_world.java")
-		print("*** s3_url: " + s3_url)
-
-		# Assert
-		s3_array = [1]
-		s3_array[0] = s3_url
-		s3 = boto3.resource("s3")
-		written_text = get_file_text_from_s3_urls(s3_array, s3)
-		event_json = json.loads(written_text[s3_url])
-		self.assertEqual(event_json["_index"], "code-index")
-		self.assertEqual(event_json["data"]["file_text"], "java++")
-		self.assertEqual(event_json["data"]["@timestamp"], "1776-07-04T09:17:07.00000")
-		self.assertTrue("@timestamp_local" in event_json["data"])
+##	def test_create_es_event__simple_event_data__s3_file_created(self):
+##		# Arrange
+##		input = {
+##			"hello" : "world"
+##			}
+##
+##		# Act
+##		s3_url = create_es_event(input)
+##		print("*** s3_url: " + s3_url)
+##
+##		# Assert
+##		s3_array = [1]
+##		s3_array[0] = s3_url
+##		s3 = boto3.resource("s3")
+##		written_text = get_file_text_from_s3_urls(s3_array, s3)
+##		event_json = json.loads(written_text[s3_url])
+##		self.assertEqual(event_json["_index"], "aws_lambda_log_")
+##		self.assertEqual(event_json["data"]["hello"], "world")
+##		self.assertTrue("@timestamp" in event_json["data"])
+##		self.assertTrue("@timestamp_local" in event_json["data"])
+##
+##	def test_create_es_event__event_data_with_timestamp__s3_file_created(self):
+##		# Arrange
+##		input = {
+##			"hello" : "world",
+##			"lambda_name" : "test-log-stream-to-es",
+##			"@timestamp" : "1776-07-04T09:17:07.00000"
+##			}
+##
+##		# Act
+##		s3_url = create_es_event(input)
+##		print("*** s3_url: " + s3_url)
+##
+##		# Assert
+##		s3_array = [1]
+##		s3_array[0] = s3_url
+##		s3 = boto3.resource("s3")
+##		written_text = get_file_text_from_s3_urls(s3_array, s3)
+##		event_json = json.loads(written_text[s3_url])
+##		self.assertEqual(event_json["_index"], "aws_lambda_log_test-log-stream-to-es")
+##		self.assertEqual(event_json["data"]["hello"], "world")
+##		self.assertEqual(event_json["data"]["@timestamp"], "1776-07-04T09:17:07.00000")
+##		self.assertTrue("@timestamp_local" in event_json["data"])
+##		self.assertGreaterEqual(len(event_json["_id"]), 30)
+##
+##	def test_create_es_event__event_data_with_index_id__s3_file_created(self):
+##		# Arrange
+##		input = {
+##			"filename" : "simpleapp/hello_world.java",
+##			"file_text" : "java++",
+##			"@timestamp" : "1776-07-04T09:17:07.00000"
+##			}
+##
+##		# Act
+##		s3_url = create_es_event(data=input, index="code-index", id="simpleapp/hello_world.java")
+##		print("*** s3_url: " + s3_url)
+##
+##		# Assert
+##		s3_array = [1]
+##		s3_array[0] = s3_url
+##		s3 = boto3.resource("s3")
+##		written_text = get_file_text_from_s3_urls(s3_array, s3)
+##		event_json = json.loads(written_text[s3_url])
+##		self.assertEqual(event_json["_index"], "code-index")
+##		self.assertEqual(event_json["data"]["file_text"], "java++")
+##		self.assertEqual(event_json["data"]["@timestamp"], "1776-07-04T09:17:07.00000")
+##		self.assertTrue("@timestamp_local" in event_json["data"])
 
 
 if __name__ == '__main__':

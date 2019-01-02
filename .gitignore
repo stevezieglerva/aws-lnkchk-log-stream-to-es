@@ -4,4 +4,3 @@ Scripts/**
 tcl/**
 __pycache__/**
 lambda_function.zip
-tests/integration_test_aws-s3-to-es-bucket/ping_tests/**
