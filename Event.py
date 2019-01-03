@@ -49,7 +49,7 @@ def create_es_event(data, index = "", id = "", ):
 	print("About to stream into firehose")
 	firehose = boto3.client("firehose")
 	record = {
-			"Data": "{\"steve\" : \"ziegler\"}"
+			"Data": json.dumps(data)
 		}
 	print("\n\n\n\n\nrecord=")
 	print(record)
