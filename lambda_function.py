@@ -37,20 +37,23 @@ def process_cloud_watch_messages(log_events):
     log.critical("event_json_log_count", record_json_log_count=len(log_events), log_events=log_events)
     print("*** log_events:")
     json_log_count = 0
+    count_by_lambda = {}
     for log_event in log_events:
         message = log_event["message"]
         if "{" in message and "lambda_name" in message:
             print(str(json_log_count) + " - " + message)
-            #timestamp = extract_timestamp_from_message_line(message)
             json_string = re.sub("^[^{]+", "", message)
             try:
                 print("*** here is the original json_string: " + json_string)
                 json_object = json.loads(json_string)
-            #    json_object["@timestamp"] = timestamp
 
                 index_name = ""
                 if "lambda_name" in json_object:
                     index_name = json_object["lambda_name"]
+                    if index_name not in count_by_lambda:
+                        count_by_lambda[index_name] = 1
+                    else:
+                        count_by_lambda[index_name] = count_by_lambda[index_name] + 1
 
                 print("Adding to event stream also")
                 create_es_event(json_object)
@@ -59,6 +62,8 @@ def process_cloud_watch_messages(log_events):
                 print("Exception")
                 print(e)
                 print("Continuing to next message")
+    print("JSON log events by lambda:")
+    print(json.dumps(count_by_lambda, indent=3))
     return json_log_count
 
 
