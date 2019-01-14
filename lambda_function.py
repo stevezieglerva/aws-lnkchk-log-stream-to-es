@@ -24,22 +24,23 @@ def lambda_handler(event, context):
     payload = json.loads(uncompressed_payload)
 
     log_events = payload["logEvents"]
+    print("Total log events received: " + str(len(log_events)))
     count = 0
     count = process_cloud_watch_messages(log_events) 
-    print("Processed count:" + str(count))
+    print("Processed JSON log events:" + str(count))
     log.critical("finished_log-stream-to-es", processed_count=count)
     return {"processed_structlog_messages" : count}
 
 
 def process_cloud_watch_messages(log_events):
     log = structlog.get_logger()
-    log.critical("event_count", record_count=len(log_events), log_events=log_events)
+    log.critical("event_json_log_count", record_json_log_count=len(log_events), log_events=log_events)
     print("*** log_events:")
-    count = 0
+    json_log_count = 0
     for log_event in log_events:
         message = log_event["message"]
         if "{" in message and "lambda_name" in message:
-            print(str(count) + " - " + message)
+            print(str(json_log_count) + " - " + message)
             #timestamp = extract_timestamp_from_message_line(message)
             json_string = re.sub("^[^{]+", "", message)
             try:
@@ -53,12 +54,12 @@ def process_cloud_watch_messages(log_events):
 
                 print("Adding to event stream also")
                 create_es_event(json_object)
-                count = count + 1
+                json_log_count = json_log_count + 1
             except Exception as e:
                 print("Exception")
                 print(e)
                 print("Continuing to next message")
-    return count
+    return json_log_count
 
 
 def extract_timestamp_from_message_line(message):
